@@ -191,18 +191,57 @@ void linkdisplay(slist* LL)
 		printf("%d --> ", p->data);
 		p = p->link;
 	}
-	printf("\n\n끝");
+	printf(" 끝 ");
 }
+
+slist* linkdel(slist* LL, int item) //연결리스트에서 검색값을 삭제
+{
+	slist* before, * after;
+	after = LL; before = NULL;
+	//체크할 기준 4가지 : 빈 리스트, 없던지, 맨앞 노드, 일반적
+
+	if (LL == NULL) //빈 리스트
+	{
+		printf("\n\n 빈 리스트이므로 삭제 불가");
+		return LL;
+	}
+	else
+	{
+		while (after != NULL && after->data != item)
+		{
+			before = after;
+			after = after->link;
+		}
+		if (after == NULL) //없던지
+		{
+			printf("\n\n 리스트에 없으므로 삭제 불가");
+			return LL;
+		}
+		else if(before == NULL) //맨앞 노드
+		{
+			LL = after->link;
+			return LL;
+		}
+		else //일반적
+		{
+			before->link = after->link;
+			return LL;
+		}
+	}
+
+}
+
+
 
 void linkedlist() //단순 연결리스트의 각종 메뉴 7가지 실행하는 함수
 {
-	int i, menu, item;
+	int i, menu, item, count;
 
-	slist* LL, * p;	//LL은 연결리스트의 헤드포인터, p는 출력할 때 임시로 사용
+	slist* LL, * p,*after,*before;	//LL은 연결리스트의 헤드포인터, p는 출력할 때 임시로 사용
 	LL = NULL;	//단순 연결리스트의 초기화
 
 	while (1) {
-		printf("\n\n 연결리스트 메뉴 1)삽입 2)삭제 3)출력 4)검색 5)개수 6)대체 7)기타 8)종료: ");
+		printf("\n\n 연결리스트 메뉴 1)삽입 2)삭제 3)출력 4)검색 5)개수 카운팅 6)교체 7)역순 연결 8)종료: ");
 		scanf_s("%d", &menu); if (menu == 8) break;
 		switch (menu) {
 		case 1: //삽입할 item 입력, item의 삽입될 위치를 검색, 삽입함수 호출
@@ -210,22 +249,67 @@ void linkedlist() //단순 연결리스트의 각종 메뉴 7가지 실행하는 함수
 			scanf_s("%d", &item);
 			LL = linkinsert(LL, item);
 			break;
-		case 2: //삭제할 item 입력, item위치 확보, 삭제함수 호출
-			
+		case 2: //삭제할 item 입력
+			printf("\n 리스트에서 삭제할 데이터 입력 : ");
+			scanf_s("%d", &item);
+			LL = linkdel(LL,item);
 			break;
 		case 3: //리스트 출력
 			linkdisplay(LL);
 			break;
-		case 4: //검색값 입력 및 위치 검색
-			
+		case 4: //검색
+			count = 0;
+			printf("\n 리스트에서 검색할 데이터 입력 : ");
+			scanf_s("%d", &item);
+
+			after = LL;
+			while (after != NULL && after->data != item)
+			{
+				before = after;
+				after = after->link;
+				count++;
+			}
+			if (after == NULL)
+			{
+				printf("\n\n 리스트에 없음");
+			}
+			else
+			{
+				printf("\n\n 리스트에 있음 : 순서=%d번쨰(%p번지)",count, after);
+			}
 			break;
-		case 5: //리스트의 값 개수 출력
-			
+		case 5: //개수 카운팅
+			count = 0;
+			p = LL;
+			while (p != NULL)
+			{
+				count++;
+				p = p->link;
+			}
+			printf("\n\n 리스트 길이 = %d",count);
 			break;
-		case 6: //대체될 값/대체할 값 입력, 위치 검색 후 대체
-			
+		case 6: //교체
+			printf("\n 리스트에서 대체될 아이템 : ");
+			scanf_s("%d", &i);
+			printf("\n 리스트에서 대체할 아이템 : ");
+			scanf_s("%d", &item);
+
+			after = LL;
+			while (after != NULL && after->data != i)
+			{
+				before = after;
+				after = after->link;
+			}
+			if (after == NULL)
+			{
+				printf("\n\n 리스트에 없음");
+			}
+			else
+			{
+				after->data = item;
+			}
 			break;
-		case 7: // 기타 연산 적용
+		case 7: //역순 연결
 
 			break;
 		default: printf("\n 메뉴선택 오류. 다시 선택하시오...\n\n"); break;
