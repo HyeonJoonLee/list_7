@@ -275,7 +275,7 @@ void linkedlist() //단순 연결리스트의 각종 메뉴 7가지 실행하는 함수
 			}
 			else
 			{
-				printf("\n\n 리스트에 있음 : 순서=%d번쨰(%p번지)",count, after);
+				printf("\n\n 리스트에 있음 : 순서=%d번쨰(%p번지)",count+1, after);
 			}
 			break;
 		case 5: //개수 카운팅
