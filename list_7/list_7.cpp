@@ -12,6 +12,13 @@ typedef struct {
 	int length;
 }ArrayListType;
 
+typedef struct slist {	//단순 연결리스트의 노드 구조
+	int data; // 정수형으로 가정
+	struct slist* link;
+} slist;
+
+
+
 //함수선언문
 int is_empty(ArrayListType* L) //배열 리스트가 비었는지 검사(리스트에서 삭제하고 싶을 때)
 {
@@ -138,7 +145,93 @@ void arraylist() //배열리스트의 각종 메뉴 7가지 실행하는 함수
 	}
 }
 
+//단순 연결리스트에 입력한 정수를 노드 삽입하고 헤드포인터를 리턴하는 함수
+slist* linkinsert(slist* LL, int item) 
+{
+	slist* before, * after, * n;
+	before = NULL;
+	after = LL;
+	n = (slist*)malloc(sizeof(slist*));
+	n->data = item; n->link = NULL;
+	//삽입경우는 3가지 1)빈 리스트 2)맨 앞에 3)일반적
+	if (LL == NULL)
+	{
+		LL = n;
+		return LL;
+	}
+	else
+	{
+		while (after != NULL && after->data <= n->data)
+		{
+			before = after;
+			after = after->link;
+			//while문을 빠져나온 이유는 2가지 : 끝까지 검사했거나 before를 찾았거나
+		}
+		if (before == NULL) //맨 앞에 삽입되어야 할 경우
+		{
+			n->link = LL;
+			LL = n;
+			return LL;
+		}
+		else //일반적인 삽입 경우
+		{
+			n->link = before->link;
+			before->link = n;
+			return LL;
+		}
+	}
+}
 
+void linkdisplay(slist* LL)
+{
+	slist* p = LL;
+	printf("\n\n 연결리스트 요소 : ");
+	while (p != NULL)
+	{
+		printf("%d --> ", p->data);
+		p = p->link;
+	}
+	printf("\n\n끝");
+}
+
+void linkedlist() //단순 연결리스트의 각종 메뉴 7가지 실행하는 함수
+{
+	int i, menu, item;
+
+	slist* LL, * p;	//LL은 연결리스트의 헤드포인터, p는 출력할 때 임시로 사용
+	LL = NULL;	//단순 연결리스트의 초기화
+
+	while (1) {
+		printf("\n\n 연결리스트 메뉴 1)삽입 2)삭제 3)출력 4)검색 5)개수 6)대체 7)기타 8)종료: ");
+		scanf_s("%d", &menu); if (menu == 8) break;
+		switch (menu) {
+		case 1: //삽입할 item 입력, item의 삽입될 위치를 검색, 삽입함수 호출
+			printf("\n 리스트에 삽입할 데이터 입력 : ");
+			scanf_s("%d", &item);
+			LL = linkinsert(LL, item);
+			break;
+		case 2: //삭제할 item 입력, item위치 확보, 삭제함수 호출
+			
+			break;
+		case 3: //리스트 출력
+			linkdisplay(LL);
+			break;
+		case 4: //검색값 입력 및 위치 검색
+			
+			break;
+		case 5: //리스트의 값 개수 출력
+			
+			break;
+		case 6: //대체될 값/대체할 값 입력, 위치 검색 후 대체
+			
+			break;
+		case 7: // 기타 연산 적용
+
+			break;
+		default: printf("\n 메뉴선택 오류. 다시 선택하시오...\n\n"); break;
+		}
+	}
+}
 
 void main()
 {
@@ -157,7 +250,7 @@ void main()
 			arraylist();
 			break;
 		case 2: //연결리스트에서의 연산들
-			//linkedlist();
+			linkedlist();
 			break;
 		case 3: //이중 연결리스트에서의 연산들
 			//dlinkedlist();
