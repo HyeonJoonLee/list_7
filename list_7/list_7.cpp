@@ -1,345 +1,472 @@
-//ÀüÃ³¸® ¹®Àå
+ï»¿#pragma warning (disable:4996)
 #include <stdio.h>
 #include <stdlib.h>
 #include <memory.h>
-#include <string>
-#include <iostream>
-#define M 1000
 
-//¼±¾ğ¹®
-typedef struct {
-	int list[M];
-	int length;
-}ArrayListType;
+typedef struct { int length; int list[1000]; } alist;
+typedef struct  slist { int data; struct  slist* link; }slist;
+typedef struct dlist { int data; struct dlist* llink; struct dlist* rlink; }dlist;
+int count;
 
-typedef struct slist {	//´Ü¼ø ¿¬°á¸®½ºÆ®ÀÇ ³ëµå ±¸Á¶
-	int data; // Á¤¼öÇüÀ¸·Î °¡Á¤
-	struct slist* link;
-} slist;
-
-
-
-//ÇÔ¼ö¼±¾ğ¹®
-int is_empty(ArrayListType* L) //¹è¿­ ¸®½ºÆ®°¡ ºñ¾ú´ÂÁö °Ë»ç(¸®½ºÆ®¿¡¼­ »èÁ¦ÇÏ°í ½ÍÀ» ¶§)
+void init(alist* L) //ë°°ì—´ë¦¬ìŠ¤íŠ¸ ì´ˆê¸°í™” í•¨ìˆ˜
 {
-	if (L->length == 0) return 1;
-	else return 0;
+	L->length = 0;
 }
 
-int is_full(ArrayListType* L) //¹è¿­ ¸®½ºÆ®°¡ ²ËÃ¡´ÂÁö °Ë»ç(¸®½ºÆ®¿¡¼­ Ãß°¡ÇÏ°í ½ÍÀ» ¶§)
+int is_empty(alist* L)
 {
-	if (L->length == M) return 1;
-	else return 0;
+	return (L->length == 0);
 }
 
-void display(ArrayListType* L)//¸®½ºÆ®ÀÇ ¸ğµç ¸â¹öµéÀ» Ãâ·Â(»èÁ¦ ¾øÀÌ)
+int is_full(alist* L)
 {
-	int i;
-	if (is_empty(L) == 1) std::cout << "\n¸®½ºÆ®°¡ ºñ¾úÀ¸¹Ç·Î Ãâ·Â ºÒ°¡\n";
-	else
-		for (i = 0; i < L->length; i++)
-			std::cout << L->list[i] << " ";
+	return (L->length == 1000);
 }
 
-void add(ArrayListType* L, int pos, int item)
+void display(alist* L)
 {
-	int i;
-	if (is_full(L) != 1 && pos > -1 && pos <= L->length)
+	for (int i = 0; i < L->length; i++)
+		printf("%d --> ", L->list[i]);
+	printf("ë");
+}
+
+void add(alist* L, int pos, int item)
+{
+	if (!is_full(L) && pos >= 0 && pos <= L->length)   //ì‚½ì…í•  ë•Œì˜ ì¡°ê±´ 3ê°€ì§€
 	{
-		for (i = L->length - 1; i >= pos; i--)
+		if (L->length == 0)  //ë¹ˆ ë¦¬ìŠ¤íŠ¸ì´ë©´ ë°”ë¡œ ì €ì¥
 		{
-			L->list[i + 1] = L->list[i];
+			L->list[0] = item; L->length++;
 		}
-		L->list[pos] = item;
-		L->length++;
+		else { //ë¹ˆ ë¦¬ìŠ¤íŠ¸ê°€ ì•„ë‹ˆë©´, pos ìœ„ì¹˜ì— ì €ì¥
+			for (int i = L->length; i > pos; i--)
+				L->list[i] = L->list[i - 1];  //ië²ˆì§¸ ìš”ì†Œ ïƒ  i+1ë²ˆì§¸(ë’¤ë¡œ ì´ë™)
+			L->list[pos] = item;    //pos ìœ„ì¹˜ì— ì €ì¥
+			L->length++;           //ë¦¬ìŠ¤íŠ¸ì˜ ë°ì´í„° ê°œìˆ˜ëŠ” 1 ì¦ê°€
+		}
 	}
+	else  printf("\n ë¦¬ìŠ¤íŠ¸ê°€ ê½‰ ì°¼ê±°ë‚˜ ì‚½ì… ìœ„ì¹˜ì˜ ì˜¤ë¥˜ : ì‚½ì…ì €ì¥ ë¶ˆê°€\n\n ");
 
 }
 
-int del(ArrayListType* L, int pos)
-{
-	int i, item;
 
-	if ((is_empty(L) != 1) && (pos > -1) && (pos < L->length))
-	{
-		item = L->list[pos];
-		for (i = pos; i < L->length; i++)
-			L->list[i] = L->list[i + 1];
-		L->length--;
-		return item;
-	}
-	else std::cout << "\n ¸®½ºÆ®°¡ ²ËÃ¡°Å³ª »èÁ¦À§Ä¡°¡ ¿À·ù!!! \n";
-}
-
-int ret_insert(ArrayListType* L, int item) //»ğÀÔÇÒ °ªÀÇ À§Ä¡¸¦ Ã£´Â ÇÔ¼ö
+//ê²€ìƒ‰í•¨ìˆ˜ : ì‚½ì…, ì‚­ì œ, ëŒ€ì²´ ìœ„ì¹˜ë¥¼ ì°¾ëŠ” í•¨ìˆ˜
+int  ret_insert(alist* L, int item)  //ì‚½ì…ìœ„ì¹˜ë¥¼ ì°¾ëŠ” í•¨ìˆ˜
 {
-	int i;
+	int  i;
 	if (L->length > 0) {
 		for (i = 0; i < L->length; i++)
-			if (item < L->list[i]) return i; // i¹øÂ° ¿ä¼ÒÀÇ ¾Õ(pos=i)¿¡ »ğÀÔ¿¹Á¤
-		return i; //¸®½ºÆ®¿¡´Â ÀÛÀº °ª¸¸ ÀÖÀ¸¹Ç·Î ¸Ç ³¡(pos=L->length)¿¡ Ãß°¡ÇØ¾ß ÇÔ
+			if (item < L->list[i])  return  i;  // ië²ˆì§¸ ì•ì— ì‚½ì…ì˜ˆì •
+		return i;   //forë¬¸ì„ ë¹ ì ¸ë‚˜ì™”ë‹¤ëŠ” ê²ƒì€ ë§¨ëì— ì‚½ì…ì˜ˆì •
 	}
-	else return 0; // lenhth<=0ÀÏ °æ¿ì, ºó ¸®½ºÆ®ÀÌ¹Ç·Î ¸Ç ¾Õ¿¡ »ğÀÔ(pos=0) ¿¹Á¤
+	else return 0;  //ë¹ˆ ë¦¬ìŠ¤íŠ¸ì´ë¯€ë¡œ ì²«ë²ˆì§¸ ìœ„ì¹˜ì— ì‚½ì…ì˜ˆì • 
 }
 
-int ret_del(ArrayListType* L, int item) //»èÁ¦(´ëÃ¼)ÇÒ °ªÀÇ À§Ä¡¸¦ Ã£´Â ÇÔ¼ö
+int del(alist* L, int pos) //ë¦¬ìŠ¤íŠ¸ì—ì„œ pos ìœ„ì¹˜ì˜ ê°’ì„ ì‚­ì œ & ë¦¬í„´
 {
-	int i;
-	for (i = 0; i < L->length; i++)
-		if (item == L->list[i]) return i; //¸®½ºÆ® ¿ä¼Ò¿Í °Ë»ö °ª°ú ÀÏÄ¡ÇÏ¸é À§Ä¡ i¸¦ ¸®ÅÏ
-	return -1; //¸®½ºÆ®¿¡ °Ë»ö °ªÀÌ ¾ø´Ù´Â ÀÇ¹ÌÀÌ¹Ç·Î -1 ¸®ÅÏ
+	int  i, item;
+	if (!is_empty(L) && pos >= 0 && pos < L->length)
+	{
+		item = L->list[pos];    //ì‚­ì œí•  ê°’ì„ itemì— ì €ì¥
+		for (i = pos + 1; i < L->length; i++)
+			L->list[i - 1] = L->list[i];  //ië²ˆì§¸ --> i-1ë²ˆì§¸(ì•ìœ¼ë¡œ ì´ë™)
+		L->length--;
+		return item;  //ë°©ê¸ˆ ì‚­ì œëœ ê°’ì„ ë¦¬í„´	
+	}
+	else  printf("\në¹ˆ ë¦¬ìŠ¤íŠ¸ì´ê±°ë‚˜ ì‚­ì œ ìœ„ì¹˜ê°€ ì˜¤ë¥˜!!!");
+	return -1;
+}
+int ret_del(alist* L, int item) //ë¦¬ìŠ¤íŠ¸ì—ì„œ itemì´ ì €ì¥ë˜ì–´ ìˆëŠ” pos ë¦¬í„´
+{
+	for (int i = 0; i < L->length; i++)
+		if (item == L->list[i]) return i; //ê²€ìƒ‰ê°’ê³¼ ì¼ì¹˜í•˜ë©´ ì²¨ì ië¥¼ ë¦¬í„´
+	return -1;    //ê²€ìƒ‰ê°’ì´ ì—†ì„ ê²½ìš° -1 ë¦¬í„´
 }
 
-void arraylist() //¹è¿­¸®½ºÆ®ÀÇ °¢Á¾ ¸Ş´º 7°¡Áö ½ÇÇàÇÏ´Â ÇÔ¼ö
+void arraylist()  //ë°°ì—´ë¦¬ìŠ¤íŠ¸ì˜ ë©”ë‰´ë¥¼ ì§€ì •í•˜ëŠ” ë©”ì¸í•¨ìˆ˜
 {
 	int i, menu, item, pos;
-	ArrayListType* L = (ArrayListType*)malloc(sizeof(ArrayListType)); //¹è¿­¸®½ºÆ®´Â ±¸Á¶Ã¼ÀÌ¹Ç·Î Æ÷ÀÎÅÍ º¯¼ö L »ç¿ë
-	L->length = 0; //¹è¿­¸®½ºÆ®ÀÇ ÃÊ±âÈ­
-	while (1) {
-		printf("\n\n ¹è¿­¸®½ºÆ® ¸Ş´º 1)»ğÀÔ 2)»èÁ¦ 3)Ãâ·Â 4)°Ë»ö 5)°³¼ö 6)´ëÃ¼ 7)±âÅ¸ 8)Á¾·á: ");
-		scanf_s("%d", &menu); if (menu == 8) break;
+	alist* L;  //êµ¬ì¡°ì²´ë¥¼ í¬ì¸í„°ë³€ìˆ˜ë¡œ ì ‘ê·¼ 
+	L = (alist*)malloc(sizeof(alist));
+	init(L);
+
+	while (1) //ë¬´í•œë£¨í”„
+	{
+		printf("\n\n ë°°ì—´ë¦¬ìŠ¤íŠ¸ 1)ì‚½ì… 2)ì‚­ì œ 3)ì¶œë ¥ 4)ê²€ìƒ‰ 5)ê°œìˆ˜ 6)ëŒ€ì²´ 7)ì—°ì‚° 8)ì¢…ë£Œ: ");
+		scanf_s("%d", &menu);
+		if (menu == 8) break;
 		switch (menu) {
-		case 1: //»ğÀÔÇÒ item ÀÔ·Â, itemÀÇ »ğÀÔµÉ À§Ä¡¸¦ °Ë»ö, »ğÀÔÇÔ¼ö È£Ãâ
-			printf("\n ¸®½ºÆ®¿¡ »ğÀÔÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 1: //ì‚½ì…í•  item ì…ë ¥, itemì˜ ì‚½ì…ë  ìœ„ì¹˜ë¥¼ ê²€ìƒ‰, ì‚½ì…í•¨ìˆ˜ í˜¸ì¶œ 
+			printf("\n ë°°ì—´ ë¦¬ìŠ¤íŠ¸ì— ì‚½ì…í•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
-			pos = ret_insert(L, item);
-			add(L, pos ,item);
+			add(L, ret_insert(L, item), item);
 			break;
-		case 2: //»èÁ¦ÇÒ item ÀÔ·Â, itemÀ§Ä¡ È®º¸, »èÁ¦ÇÔ¼ö È£Ãâ
-			printf("\n ¸®½ºÆ®¿¡¼­ »èÁ¦ÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 2:  //ì‚­ì œí•  item ì…ë ¥, itemìœ„ì¹˜ í™•ë³´, ì‚­ì œí•¨ìˆ˜ í˜¸ì¶œ
+			printf("\n ë°°ì—´ ë¦¬ìŠ¤íŠ¸ì—ì„œ ì‚­ì œí•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
-			pos = ret_del(L, item);
-			if (pos == -1) printf("\n\n ¸®½ºÆ®¿¡ »èÁ¦ÇÒ °ªÀÌ ¾øÀ½...");
-			else del(L, pos);
+			i = del(L, ret_del(L, item));
+			printf("\n ë°©ê¸ˆ ë¦¬ìŠ¤íŠ¸ì—ì„œ %dê°€ ì‚­ì œë¨", i);
 			break;
-		case 3: //¸®½ºÆ® Ãâ·Â
-			display(L);
-			break;
-		case 4: //°Ë»ö°ª ÀÔ·Â ¹× À§Ä¡ °Ë»ö
-			printf("\n ¸®½ºÆ®¿¡¼­ °Ë»öÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 3: display(L); break;
+		case 4: //ê²€ìƒ‰
+			printf("\n ë°°ì—´ ë¦¬ìŠ¤íŠ¸ì—ì„œ ê²€ìƒ‰í•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
-			pos = ret_del(L,item);
-			if (pos == -1) printf("\n\n ¸®½ºÆ®¿¡ °Ë»öÇÒ °ªÀÌ ¾øÀ½...");
-			else printf("\n\n ¸®½ºÆ®¿¡ %d¹øÂ°¿¡ ÀÖÀ½", pos + 1);
+			i = ret_del(L, item);
+			if (i >= 0) printf("\n %dëŠ” ë¦¬ìŠ¤íŠ¸ %dë²ˆì— ìˆìŒ", item, i);
+			else        printf("\n %dëŠ” ë¦¬ìŠ¤íŠ¸ì— ì—†ìŒ", item);
 			break;
-		case 5: //¸®½ºÆ®ÀÇ °ª °³¼ö Ãâ·Â
-			printf("\n\n ¸®½ºÆ®¿¡´Â %d°³ÀÇ ¿ä¼Ò°¡ ÀÖÀ½", L->length);
+		case 5: //ë¦¬ìŠ¤íŠ¸ì˜ ê°’ ê°œìˆ˜ ì¶œë ¥
+			printf("\në¦¬ìŠ¤íŠ¸ì˜ ê¸¸ì´ = %dê°œ", L->length);
 			break;
-		case 6: //´ëÃ¼µÉ °ª/´ëÃ¼ÇÒ °ª ÀÔ·Â, À§Ä¡ °Ë»ö ÈÄ ´ëÃ¼
-			printf("\n ¸®½ºÆ®¿¡¼­ ´ëÃ¼µÉ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 6: //.ëŒ€ì²´ë  ê°’ ì…ë ¥ ë° ìœ„ì¹˜ê²€ìƒ‰, ëŒ€ì²´í•  ê°’ ì…ë ¥ ë° ì €ì¥
+			printf("\n ë°°ì—´ ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ€ì²´ë  ì•„ì´í…œ : ");
+			scanf_s("%d", &i);
+			printf("\n ë°°ì—´ ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ€ì²´í•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
-			pos = ret_del(L, item);
-			if (pos == -1) printf("\n\n ¸®½ºÆ®¿¡ ´ëÃ¼µÉ °ªÀÌ ¾øÀ½...");
-			else
-			{
-				printf("\n ¸®½ºÆ®¿¡¼­ ´ëÃ¼ÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
-				scanf_s("%d", &item);
-				L->list[pos] = item;
-			}
+			L->list[ret_del(L, i)] = item;
 			break;
-		case 7: // ±âÅ¸ ¿¬»ê Àû¿ë
 
+		default:  printf("\n ë©”ë‰´ì„ íƒ ì˜¤ë¥˜. ë‹¤ì‹œ ì„ íƒí•˜ì‹œì˜¤...\n\n");
 			break;
-		default: printf("\n ¸Ş´º¼±ÅÃ ¿À·ù. ´Ù½Ã ¼±ÅÃÇÏ½Ã¿À...\n\n"); break;
 		}
 	}
 }
 
-//´Ü¼ø ¿¬°á¸®½ºÆ®¿¡ ÀÔ·ÂÇÑ Á¤¼ö¸¦ ³ëµå »ğÀÔÇÏ°í ÇìµåÆ÷ÀÎÅÍ¸¦ ¸®ÅÏÇÏ´Â ÇÔ¼ö
-slist* linkinsert(slist* LL, int item) 
-{
+
+
+slist* linkinsert(slist* LL, int item)
+{ //ì…ë ¥ê°’ì„ ë¦¬ìŠ¤íŠ¸ì˜ ì œìë¦¬ì— ì‚½ì…(ì‚½ì…ìœ„ì¹˜ ê²€ìƒ‰ í¬í•¨)
 	slist* before, * after, * n;
-	before = NULL;
-	after = LL;
-	n = (slist*)malloc(sizeof(slist*));
+	after = LL; before = NULL;
+	n = (slist*)malloc(sizeof(slist));
 	n->data = item; n->link = NULL;
-	//»ğÀÔ°æ¿ì´Â 3°¡Áö 1)ºó ¸®½ºÆ® 2)¸Ç ¾Õ¿¡ 3)ÀÏ¹İÀû
-	if (LL == NULL)
+
+	if (LL == NULL) //1) ì²« ë…¸ë“œë¥¼ ì‚½ì…í•˜ëŠ” ê²½ìš°
 	{
-		LL = n;
-		return LL;
+		LL = n; return LL;
 	}
-	else
-	{
-		while (after != NULL && after->data <= n->data)
+	else { //ë¦¬ìŠ¤íŠ¸ê°€ ì¡´ì¬í•˜ë¯€ë¡œ after, beforeë¥¼ ì´ìš©í•´ì„œ ì‚½ì…ìœ„ì¹˜ ê²€ìƒ‰
+		while (after != NULL && after->data < n->data)
 		{
-			before = after;
-			after = after->link;
-			//while¹®À» ºüÁ®³ª¿Â ÀÌÀ¯´Â 2°¡Áö : ³¡±îÁö °Ë»çÇß°Å³ª before¸¦ Ã£¾Ò°Å³ª
+			before = after; after = after->link;
 		}
-		if (before == NULL) //¸Ç ¾Õ¿¡ »ğÀÔµÇ¾î¾ß ÇÒ °æ¿ì
+		if (before == NULL) //2)ë§¨ì•ì— ì‚½ì…ìœ„ì¹˜
 		{
-			n->link = LL;
-			LL = n;
-			return LL;
+			n->link = LL; LL = n;	return LL;
 		}
-		else //ÀÏ¹İÀûÀÎ »ğÀÔ °æ¿ì
+		else   //3)ì¼ë°˜ì ì¸ ì‚½ì…ìœ„ì¹˜
 		{
-			n->link = before->link;
-			before->link = n;
-			return LL;
+			n->link = before->link; before->link = n; return LL;
 		}
 	}
 }
 
-void linkdisplay(slist* LL)
-{
-	slist* p = LL;
-	printf("\n\n ¿¬°á¸®½ºÆ® ¿ä¼Ò : ");
-	while (p != NULL)
-	{
-		printf("%d --> ", p->data);
-		p = p->link;
-	}
-	printf(" ³¡ ");
-}
-
-slist* linkdel(slist* LL, int item) //¿¬°á¸®½ºÆ®¿¡¼­ °Ë»ö°ªÀ» »èÁ¦
+slist* linkdel(slist* LL, int item) //ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ê²€ìƒ‰ê°’ì„ ì‚­ì œ
 {
 	slist* before, * after;
 	after = LL; before = NULL;
-	//Ã¼Å©ÇÒ ±âÁØ 4°¡Áö : ºó ¸®½ºÆ®, ¾ø´øÁö, ¸Ç¾Õ ³ëµå, ÀÏ¹İÀû
-
-	if (LL == NULL) //ºó ¸®½ºÆ®
+	//ì²´í¬í•  ê¸°ì¤€ 4ê°€ì§€ : ë¹ˆ ë¦¬ìŠ¤íŠ¸, ì—†ë“ ì§€, ë§¨ì• ë…¸ë“œ, ì¼ë°˜ì  
+	if (LL == NULL)  //1)
 	{
-		printf("\n\n ºó ¸®½ºÆ®ÀÌ¹Ç·Î »èÁ¦ ºÒ°¡");
-		return LL;
+		printf("\n\n ë¹ˆ ë¦¬ìŠ¤íŠ¸ì´ë¯€ë¡œ ì‚­ì œë¶ˆê°€"); return LL;
 	}
-	else
-	{
+	else {
 		while (after != NULL && after->data != item)
 		{
-			before = after;
-			after = after->link;
+			before = after; after = after->link;
 		}
-		if (after == NULL) //¾ø´øÁö
+		if (after == NULL) //2)
 		{
-			printf("\n\n ¸®½ºÆ®¿¡ ¾øÀ¸¹Ç·Î »èÁ¦ ºÒ°¡");
-			return LL;
+			printf("\n\n ë¦¬ìŠ¤íŠ¸ì— ì—†ìœ¼ë¯€ë¡œ ì‚­ì œë¶ˆê°€"); return LL;
 		}
-		else if(before == NULL) //¸Ç¾Õ ³ëµå
+		else if (before == NULL)  //3)
 		{
-			LL = after->link;
-			return LL;
+			LL = after->link; free(after);  return LL;
 		}
-		else //ÀÏ¹İÀû
+		else  //4)
 		{
-			before->link = after->link;
-			return LL;
+			before->link = after->link; free(after); return LL;
 		}
 	}
-
 }
 
-
-
-void linkedlist() //´Ü¼ø ¿¬°á¸®½ºÆ®ÀÇ °¢Á¾ ¸Ş´º 7°¡Áö ½ÇÇàÇÏ´Â ÇÔ¼ö
+slist* reverse(slist* LL) //ì—°ê²°ë¦¬ìŠ¤íŠ¸ì˜ ì—°ê²°ìˆœì„œë¥¼ ë°˜ëŒ€ë¡œ ì¬êµ¬ì„±
 {
-	int i, menu, item, count;
+	slist* p = LL, * q = NULL, * r = NULL;
+	while (p != NULL)
+	{
+		r = q;
+		q = p;
+		p = p->link;
+		q->link = r;
+	}
+	return q;
+}
 
-	slist* LL, * p,*after,*before;	//LLÀº ¿¬°á¸®½ºÆ®ÀÇ ÇìµåÆ÷ÀÎÅÍ, p´Â Ãâ·ÂÇÒ ¶§ ÀÓ½Ã·Î »ç¿ë
-	LL = NULL;	//´Ü¼ø ¿¬°á¸®½ºÆ®ÀÇ ÃÊ±âÈ­
+void linkedlist() //ë‹¨ìˆœ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ëŒ€í•œ ë©”ë‰´ ì‹¤í–‰
+{
+	int i, menu, item, count = 0;
+	slist* before, * after, * p, * LL = NULL; //ì—°ê²°ë¦¬ìŠ¤íŠ¸ í—¤ë“œí¬ì¸í„° ì„ ì–¸ ë° ì´ˆê¸°í™”
 
-	while (1) {
-		printf("\n\n ¿¬°á¸®½ºÆ® ¸Ş´º 1)»ğÀÔ 2)»èÁ¦ 3)Ãâ·Â 4)°Ë»ö 5)°³¼ö Ä«¿îÆÃ 6)±³Ã¼ 7)¿ª¼ø ¿¬°á 8)Á¾·á: ");
-		scanf_s("%d", &menu); if (menu == 8) break;
+	while (1) //ë¬´í•œë£¨í”„
+	{
+		printf("\n\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ 1)ì‚½ì… 2)ì‚­ì œ 3)ì¶œë ¥ 4)ê²€ìƒ‰ 5)ê°œìˆ˜ 6)ëŒ€ì²´ 7)ì—­ìˆœ 8)ì¢…ë£Œ: ");
+		scanf_s("%d", &menu);
+		if (menu == 8) break;
 		switch (menu) {
-		case 1: //»ğÀÔÇÒ item ÀÔ·Â, itemÀÇ »ğÀÔµÉ À§Ä¡¸¦ °Ë»ö, »ğÀÔÇÔ¼ö È£Ãâ
-			printf("\n ¸®½ºÆ®¿¡ »ğÀÔÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 1: //ë‹¨ìˆœ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ì…ë ¥ê°’ì„ ë…¸ë“œë¡œ ì œìë¦¬ ì‚½ì…
+			printf("\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ì‚½ì…í•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
 			LL = linkinsert(LL, item);
 			break;
-		case 2: //»èÁ¦ÇÒ item ÀÔ·Â
-			printf("\n ¸®½ºÆ®¿¡¼­ »èÁ¦ÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 2: //ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ì‚­ì œí•  ê°’ ì…ë ¥
+			printf("\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ì‚­ì œí•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
-			LL = linkdel(LL,item);
+			LL = linkdel(LL, item);
 			break;
-		case 3: //¸®½ºÆ® Ãâ·Â
-			linkdisplay(LL);
+
+		case 3:  //ì—°ê²°ë¦¬ìŠ¤íŠ¸ ì¶œë ¥
+			p = LL;
+			printf("\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ ì¶œë ¥ : ");
+			while (p != NULL)
+			{
+				printf("%d --> ", p->data);
+				p = p->link;
+			}
+			printf("ë \n");
 			break;
-		case 4: //°Ë»ö
-			count = 0;
-			printf("\n ¸®½ºÆ®¿¡¼­ °Ë»öÇÒ µ¥ÀÌÅÍ ÀÔ·Â : ");
+		case 4: //ê²€ìƒ‰
+			printf("\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ê²€ìƒ‰í•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
 
 			after = LL;
 			while (after != NULL && after->data != item)
 			{
-				before = after;
-				after = after->link;
-				count++;
+				before = after; after = after->link; count++;
 			}
-			if (after == NULL)
-			{
-				printf("\n\n ¸®½ºÆ®¿¡ ¾øÀ½");
-			}
-			else
-			{
-				printf("\n\n ¸®½ºÆ®¿¡ ÀÖÀ½ : ¼ø¼­=%d¹ø¤Š(%p¹øÁö)",count+1, after);
-			}
+			if (after == NULL) printf("\n\n ë¦¬ìŠ¤íŠ¸ì— ì—†ìŒ");
+			else printf("\n ë¦¬ìŠ¤íŠ¸ì— ìˆìŒ : ìˆœì„œ=%dë²ˆì§¸(%pë²ˆì§€)",
+				count + 1, after);
 			break;
-		case 5: //°³¼ö Ä«¿îÆÃ
+
+		case 5: //ê°œìˆ˜ ì¹´ìš´íŒ…
 			count = 0;
 			p = LL;
+
 			while (p != NULL)
 			{
-				count++;
-				p = p->link;
+				count++; p = p->link;
 			}
-			printf("\n\n ¸®½ºÆ® ±æÀÌ = %d",count);
+			printf("\n\n ë¦¬ìŠ¤íŠ¸ ê¸¸ì´ = %d ", count);
 			break;
-		case 6: //±³Ã¼
-			printf("\n ¸®½ºÆ®¿¡¼­ ´ëÃ¼µÉ ¾ÆÀÌÅÛ : ");
+
+		case 6: //êµì²´
+			printf("\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ€ì²´ë  ì•„ì´í…œ : ");
 			scanf_s("%d", &i);
-			printf("\n ¸®½ºÆ®¿¡¼­ ´ëÃ¼ÇÒ ¾ÆÀÌÅÛ : ");
+			printf("\n ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ€ì²´í•  ì•„ì´í…œ : ");
 			scanf_s("%d", &item);
 
 			after = LL;
 			while (after != NULL && after->data != i)
 			{
-				before = after;
-				after = after->link;
+				before = after; after = after->link;
 			}
-			if (after == NULL)
-			{
-				printf("\n\n ¸®½ºÆ®¿¡ ¾øÀ½");
-			}
-			else
-			{
-				after->data = item;
-			}
+			if (after == NULL) printf("\n\n ë¦¬ìŠ¤íŠ¸ì— ì—†ìœ¼ë¯€ë¡œ ëŒ€ì²´ ë¶ˆê°€");
+			else after->data = item;
 			break;
-		case 7: //¿ª¼ø ¿¬°á
 
+		case 7: //ì—­ìˆœ ì—°ê²° 1->2->3->NULL ì„  3->2->1->NULL ë§í¬ ë³€ê²½
+			LL = reverse(LL);
 			break;
-		default: printf("\n ¸Ş´º¼±ÅÃ ¿À·ù. ´Ù½Ã ¼±ÅÃÇÏ½Ã¿À...\n\n"); break;
+		default:  printf("\n ë©”ë‰´ì„ íƒ ì˜¤ë¥˜. ë‹¤ì‹œ ì„ íƒí•˜ì‹œì˜¤...\n\n");
+			break;
 		}
 	}
 }
 
-void main()
+dlist* dinsert(dlist* DL, int item) //ê°’ì„ ë…¸ë“œë¡œ ì‚½ì…í•˜ê³  í—¤ë“œì£¼ì†Œë¥¼ ë¦¬í„´
+{//ì‚½ì…ìœ„ì¹˜ëŠ” 4ê°€ì§€ 1)ë¹ˆ 2)ë§¨ì• 3)ë§¨ë’¤ 4)ì¼ë°˜
+	dlist* before = NULL, * after = DL, * n;
+	n = (dlist*)malloc(sizeof(dlist));
+	n->data = item; n->llink = NULL; n->rlink = NULL;
+
+	if (DL == NULL) //1) ì²« ë…¸ë“œë¥¼ ì‚½ì…í•˜ëŠ” ê²½ìš°
+	{
+		DL = n;
+		return DL;
+	}
+	else
+	{ //ë¦¬ìŠ¤íŠ¸ê°€ ì¡´ì¬í•˜ë¯€ë¡œ after, beforeë¥¼ ì´ìš©í•´ì„œ ì‚½ì…ìœ„ì¹˜ ê²€ìƒ‰
+		while (after != NULL && after->data <= n->data)
+		{
+			before = after;
+			after = after->rlink;
+		}
+		if (before == NULL) //2)ë§¨ì•ì— ì‚½ì…ìœ„ì¹˜
+		{
+			n->rlink = DL;
+			DL = n;
+			return DL;
+		}
+		else if (after == NULL) //ë§¨ë’¤ì— ì‚½ì…
+		{
+			n->llink = before;
+			before->rlink = n;
+			return DL;
+		}
+		else  //3)ì¼ë°˜ì ì¸ ì‚½ì…ìœ„ì¹˜
+		{
+			n->rlink = before->rlink;
+			n->llink = before;
+			before->rlink->llink = n;
+			before->rlink = n;
+			return DL;
+		}
+	}
+}
+
+dlist* ddel(dlist* DL, int item) //ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ê²€ìƒ‰ê°’ì„ ì‚­ì œ
+{
+	dlist* before = NULL, * remove = DL;
+	//ì²´í¬í•  ê¸°ì¤€ 4ê°€ì§€ : ë¹ˆ ë¦¬ìŠ¤íŠ¸, ì—†ë“ ì§€, ë§¨ì• ë…¸ë“œ, ë§¨ë ë…¸ë“œ, ì¼ë°˜ì  
+	if (DL == NULL)  //1)ë¹ˆ ë¦¬ìŠ¤íŠ¸
+	{
+		printf("\n\n ë¹ˆ ë¦¬ìŠ¤íŠ¸ì´ë¯€ë¡œ ì‚­ì œë¶ˆê°€"); return DL;
+	}
+	while (remove != NULL && remove->data != item)
+	{
+		before = remove;
+		remove = remove->rlink;
+	}
+	if (remove == NULL) //2)ê°’ì´ ì—†ìŒ
+	{
+		printf("\n\n ë¦¬ìŠ¤íŠ¸ì— ì—†ìœ¼ë¯€ë¡œ ì‚­ì œë¶ˆê°€"); return DL;
+	}
+	if (before == NULL)  //3)ë§¨ì• ë…¸ë“œ
+	{
+		remove->rlink->llink = NULL;
+		DL = remove->rlink;
+		free(remove);
+		return DL;
+	}
+	else if (remove->rlink == NULL) //4)ë§¨ë ë…¸ë“œ
+	{
+		before->rlink = NULL;
+		free(remove);
+		return DL;
+	}
+	else //ì¼ë°˜ì 
+	{
+		before->rlink = remove->rlink;
+		remove->rlink->llink = before;
+		free(remove);
+		return DL;
+	}
+}
+
+dlist* dsearch(dlist* DL, int item)
+{
+	count = 0;
+	dlist* p = DL;
+	while (p != NULL && p->data != item)
+	{
+		count++;
+		p = p->rlink;
+	}
+	return p;
+}
+
+void dlinkedlist() //ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ëŒ€í•œ ëª¨ë“  ë§¤ë‰´ ìˆ˜í–‰
+{
+	int i, menu, item;
+	dlist* DL = NULL, * p, * after, * before;
+
+	while (1) //ë¬´í•œë£¨í”„
+	{
+		printf("\n\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ 1)ì‚½ì… 2)ì‚­ì œ 3)ì¶œë ¥ 4)ê²€ìƒ‰ 5)ê°œìˆ˜ 6)ëŒ€ì²´ 7)ì—­ìˆœ 8)ì¢…ë£Œ: ");
+		scanf_s("%d", &menu);
+		if (menu == 8) break;
+		switch (menu) {
+		case 1: //ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ì…ë ¥ê°’ì„ ì‚½ì…
+			printf("\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì— ì‚½ì…í•  ì•„ì´í…œ : ");
+			scanf_s("%d", &item);
+			DL = dinsert(DL, item);
+			break;
+		case 2: //ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ì‚­ì œí•  ê°’ ì…ë ¥
+			printf("\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ì‚­ì œí•  ì•„ì´í…œ : ");
+			scanf_s("%d", &item);
+			DL = ddel(DL, item);
+			break;
+		case 3:  //ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ ì¶œë ¥
+			p = DL;
+			printf("\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ ì¶œë ¥ : ");
+			while (p != NULL)
+			{
+				printf("%d --> ", p->data);
+				p = p->rlink;
+			}
+			printf("ë \n");
+			break;
+		case 4: //ê²€ìƒ‰
+			printf("\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ê²€ìƒ‰í•  ì•„ì´í…œ : ");
+			scanf_s("%d", &item);
+			p = dsearch(DL, item);
+			if (p == NULL) //ë¦¬ìŠ¤íŠ¸ì— ê²€ìƒ‰ê°’ì´ ì—†ì„ ë•Œ
+			{
+				printf("\n ë¦¬ìŠ¤íŠ¸ì— ê²€ìƒ‰ê°’ì´ ì—†ìŒ ");
+			}
+			else
+			{
+				printf("\n ë¦¬ìŠ¤íŠ¸ì— %dë²ˆì§¸ì— ìˆìŒ(%pë²ˆì§€)", count + 1, p);
+			}
+			break;
+		case 5: //ê°œìˆ˜ ì¹´ìš´íŒ…
+			count = 0;
+			p = DL;
+
+			while (p != NULL)
+			{
+				count++; p = p->rlink;
+			}
+			printf("\n\n ë¦¬ìŠ¤íŠ¸ ê¸¸ì´ = %d ", count);
+			break;
+		case 6: //êµì²´
+			printf("\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ€ì²´ë  ì•„ì´í…œ : ");
+			scanf_s("%d", &i);
+			printf("\n ì´ì¤‘ ì—°ê²°ë¦¬ìŠ¤íŠ¸ì—ì„œ ëŒ€ì²´í•  ì•„ì´í…œ : ");
+			scanf_s("%d", &item);
+
+			after = DL;
+			while (after != NULL && after->data != i)
+			{
+				before = after; after = after->rlink;
+			}
+			if (after == NULL) printf("\n\n ë¦¬ìŠ¤íŠ¸ì— ì—†ìœ¼ë¯€ë¡œ ëŒ€ì²´ ë¶ˆê°€");
+			else after->data = item;
+			break;
+		case 7: //ì—­ìˆœ ì—°ê²° 1->2->3->NULL ì„  3->2->1->NULL ë§í¬ ë³€ê²½
+
+			break;
+		default:  printf("\n ë©”ë‰´ì„ íƒ ì˜¤ë¥˜. ë‹¤ì‹œ ì„ íƒí•˜ì‹œì˜¤...\n\n");
+			break;
+		}
+	}
+}
+
+void main() //ë©”ì¸í•¨ìˆ˜ ë©”ë‰´ ë³€ê²½ => 1)ë°°ì—´ë¦¬ìŠ¤íŠ¸  2)ì—°ê²°ë¦¬ìŠ¤íŠ¸  3)ì¢…ë£Œ
 {
 	int i, menu;
-
-	ArrayListType* L = (ArrayListType*)malloc(sizeof(ArrayListType));
-	L->length = 0; //¸®½ºÆ® ÃÊ±âÈ­
-
-	while (1) //¹«ÇÑ·çÇÁ
+	while (1) //ë¬´í•œë£¨í”„
 	{
-		printf("\n\n\n ¸Ş´º 1)¹è¿­¸®½ºÆ®  2)´Ü¼ø ¿¬°á¸®½ºÆ®  3)ÀÌÁß ¿¬°á¸®½ºÆ®  4)Á¾·á: ");
+		printf("\n\n\n 1)ë°°ì—´ë¦¬ìŠ¤íŠ¸  2)ì—°ê²°ë¦¬ìŠ¤íŠ¸  3)ì´ì¤‘ì—°ê²°ë¦¬ìŠ¤íŠ¸  4)ì¢…ë£Œ: ");
 		scanf_s("%d", &menu);
 		if (menu == 4) break;
 		switch (menu) {
-		case 1: //¹è¿­¸®½ºÆ®¿¡¼­ÀÇ ¿¬»êµé
-			arraylist();
+		case 1:  arraylist();  break;
+		case 2:  linkedlist();  break;
+		case 3:  dlinkedlist();  break;
+		default:  printf("\n ë©”ë‰´ì„ íƒ ì˜¤ë¥˜. ë‹¤ì‹œ ì„ íƒí•˜ì‹œì˜¤...\n\n");
 			break;
-		case 2: //¿¬°á¸®½ºÆ®¿¡¼­ÀÇ ¿¬»êµé
-			linkedlist();
-			break;
-		case 3: //ÀÌÁß ¿¬°á¸®½ºÆ®¿¡¼­ÀÇ ¿¬»êµé
-			//dlinkedlist();
-			break;
-		default: printf("\n ¸Ş´º¼±ÅÃ ¿À·ù. ´Ù½Ã ¼±ÅÃÇÏ½Ã¿À...\n\n");
 		}
 	}
 }
